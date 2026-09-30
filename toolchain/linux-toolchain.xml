@@ -1,0 +1,224 @@
+<xml>
+
+   <!-- LINUX TOOLS -->
+
+   <section if="xcompile">
+      <section if="HXCPP_M64">
+         <set name="CXX" value="${HXCPP_XLINUX64_CXX}" />
+         <set name="HXCPP_STRIP" value="${HXCPP_XLINUX64_STRIP}" />
+         <set name="HXCPP_AR" value="${HXCPP_XLINUX64_AR}" />
+         <set name="HXCPP_RANLIB" value="${HXCPP_XLINUX64_RANLIB}" />
+      </section>
+      <section unless="HXCPP_M64">
+         <set name="CXX" value="${HXCPP_XLINUX32_CXX}" />
+         <set name="HXCPP_STRIP" value="${HXCPP_XLINUX32_STRIP}" />
+         <set name="HXCPP_AR" value="${HXCPP_XLINUX32_AR}" />
+         <set name="HXCPP_RANLIB" value="${HXCPP_XLINUX32_RANLIB}" />
+      </section>
+      <section if="rpi">
+         <path name="c:/SysGCC/Raspberry/bin/" unless="HXCPP_XCOMPILE_RPI_PATH" />
+         <path name="${HXCPP_XCOMPILE_RPI_PATH}" if="HXCPP_XCOMPILE_RPI_PATH" />
+         <set name="CXX" value="arm-linux-gnueabihf-g++" />
+         <set name="HXCPP_STRIP" value="arm-linux-gnueabihf-strip" />
+         <set name="HXCPP_AR" value="arm-linux-gnueabihf-ar" />
+         <set name="HXCPP_RANLIB" value="arm-linux-gnueabihf-ranlib" />
+      </section>
+
+      <!-- Nintendo 3DS (nx) Cross-Compile Paths -->
+      <section if="nx">
+         <path name="/opt/devkitpro/devkitARM/bin/" />
+         <path name="/opt/devkitpro/tools/bin/" />
+         <set name='CXX' value='arm-none-eabi-g++' />
+         <set name='HXCPP_STRIP' value='arm-none-eabi-strip' />
+         <set name='HXCPP_AR' value='arm-none-eabi-ar' />
+         <set name='HXCPP_RANLIB' value='arm-none-eabi-ranlib' />
+      </section>
+
+      <!-- Nintendo Wii U (wiiu) Cross-Compile Paths -->
+      <section if="wiiu">
+         <path name="/opt/devkitpro/devkitPPC/bin/" />
+         <path name="/opt/devkitpro/tools/bin/" />
+         <set name='CXX' value='powerpc-eabi-g++' />
+         <set name='HXCPP_STRIP' value='powerpc-eabi-strip' />
+         <set name='HXCPP_AR' value='powerpc-eabi-ar' />
+         <set name='HXCPP_RANLIB' value='powerpc-eabi-ranlib' />
+      </section>
+      
+   </section>
+
+   <set name="HXCPP_CPP11" value="1" unless="HXCPP_NO_CPP11 || HXCPP_CPP17" />
+
+   <include name="toolchain/gcc-toolchain.xml"/>
+   
+   <set name="noM32" value="1" if="HXCPP_NO_M32" />
+   <set name="noM32" value="1" if="HXCPP_M64" />
+   <set name="noM32" value="1" if="rpi" />
+   <set name="noM32" value="1" if="HXCPP_ARM64" />
+   <set name="noM32" value="1" if="nx" />
+   <set name="noM32" value="1" if="wiiu" /> <!-- Prevent host -m32 flag on Wii U -->
+
+   <set name="noM64" value="1" if="HXCPP_ARM64" />
+   <set name="noM64" value="1" if="nx" />
+   <set name="noM64" value="1" if="wiiu" /> <!-- Prevent host -m64 flag on Wii U -->
+
+   <compiler id="linux" exe="g++" if="linux">
+      <exe name="${CXX}" if="CXX" />
+      <flag value="-c"/>
+      <flag value="-fvisibility=hidden"/>
+      <cppflag value="-frtti"/>
+      <cppflag value="-std=c++11" if="HXCPP_CPP11" />
+      <cppflag value="-std=c++17" if="HXCPP_CPP17"/>
+      
+      <!-- ========================================== -->
+      <!-- Nintendo 3DS specific flags (nx)           -->
+      <!-- ========================================== -->
+      <section if="nx">
+         <flag value='-march=armv6k' />
+         <flag value='-mtp=soft' />
+         <flag value='-mtune=mpcore' />
+         <flag value='-mfloat-abi=hard' />
+         <flag value='-w' />
+         <flag value='-D__3DS__' />
+         <flag value='-D__TM_GMTOFF=tm_gmtoff'/>
+         <flag value='-D__POSIX_VISIBLE'/>
+         <flag value='-D__BSD_VISIBLE'/>
+         <flag value="-DHAXE3DS"/>
+         
+         <flag value='-I/opt/devkitpro/libctru/include'/>
+         <flag value='-I/opt/devkitpro/portlibs/3ds/include'/>
+         <flag value='-I/opt/devkitpro/portlibs/armv6k/include'/>
+         
+         <flag value='-ffunction-sections' />
+         <flag value='-fexceptions' />
+         <flag value='-fpermissive' />
+         <flag value='-static' />
+      </section>
+
+      <!-- ========================================== -->
+      <!-- Nintendo Wii U specific flags (wiiu)       -->
+      <!-- ========================================== -->
+      <section if="wiiu">
+         <!-- Wii U CPU is PowerPC 750 (Espresso) -->
+         <flag value='-mcpu=750' />
+         <flag value='-meabi' />
+         <flag value='-mhard-float' />
+         <flag value='-w' />
+         
+         <!-- Wii U Defines -->
+         <flag value='-D__WIIU__' />
+         <flag value='-D__CAFE__' />
+         <flag value="-DHAXEWIIU"/>
+         <flag value="-DHXCPP_BIG_ENDIAN"/> <!-- Wii U is Big Endian! -->
+         
+         <!-- Wii U (WUT) Include Paths -->
+         <flag value='-I/opt/devkitpro/wut/include' />
+         <flag value='-I/opt/devkitpro/wut/include/wut' />
+         <flag value='-I/opt/devkitpro/devkitPPC/include' />
+         
+         <flag value='-ffunction-sections' />
+         <flag value='-fexceptions' />
+         <flag value='-fpermissive' />
+         <flag value='-static' />
+      </section>
+
+      <flag value="-fpic" unless="nx" />
+      <flag value="-fpic" unless="wiiu" />
+      <flag value="-fPIC" unless="nx"/>
+      <flag value="-fPIC" unless="wiiu"/>
+
+      <flag value="-Wno-overflow" />
+      <cppflag value="-Wno-invalid-offsetof" />
+
+      <flag value="-DHX_LINUX"/>
+      <flag value="-DRASPBERRYPI=RASPBERRYPI" if="rpi"/>
+      <flag value="-DHXCPP_MULTI_THREADED" if="HXCPP_MULTI_THREADED"/>
+      <flag value="-DHXCPP_BIG_ENDIAN" if="HXCPP_BIG_ENDIAN"/>
+      <include name="toolchain/common-defines.xml" />
+      
+      <flag value="-m32" unless="noM32"/>
+      <flag value="-m64" if="HXCPP_M64" unless="noM64" />
+      <flag value="-DHXCPP_M64" if="HXCPP_M64"/>
+      
+      <flag value="-I${HXCPP}/include"/>
+      <objdir value="obj/linux${OBJEXT}/"/>
+      <outflag value="-o"/>
+      <ext value=".o"/>
+   </compiler>
+
+   <!-- ========================================== -->
+   <!-- Linker: DLL                                -->
+   <!-- ========================================== -->
+   <linker id="dll" exe="g++" if="linux">
+      <exe name="${CXX}" if="CXX" />
+      <fromfile value="" if="GCC_OLD" />
+      <flag value="-shared"/>
+      <flag value="-fpic"/>
+      <flag value="-fPIC"/>
+      <flag value="-m32" unless="noM32"/>
+      <flag value="-m64" if="HXCPP_M64" unless="noM64" />
+      <flag value="-Xlinker"/>
+      <flag value="--no-undefined" unless="HXCPP_ALLOW_UNDEFINED" />
+      <lib name="-ldl"/>
+
+      <!-- 3DS Linker Flags -->
+      <section if="nx">
+         <flag value="-specs=3dsx.specs"/>
+         <lib name="-L/opt/devkitpro/libctru/lib"/>
+         <lib name="-L/opt/devkitpro/portlibs/3ds/lib"/>
+         <lib name="-I/opt/devkitpro/portlibs/3ds/include"/>
+         <lib name="-lcitro3d"/>
+         <lib name="-lcitro2d"/>
+         <lib name="-lctru"/>
+         <lib name="-lm"/>
+      </section>
+
+      <!-- Wii U Linker Flags -->
+      <section if="wiiu">
+         <lib name="-L/opt/devkitpro/wut/lib"/>
+         <lib name="-lwut"/>
+         <lib name="-lcoreinit"/>
+         <lib name="-lfs"/>
+         <lib name="-lgx2"/>
+         <lib name="-lm"/>
+      </section>
+
+      <ext value=".dso"/>
+      <outflag value="-o "/>
+   </linker>
+
+   <!-- ========================================== -->
+   <!-- Linker: EXE                                -->
+   <!-- ========================================== -->
+   <linker id="exe" exe="g++" if="linux">
+      <exe name="${CXX}" if="CXX" />
+      <fromfile value="" if="GCC_OLD" />
+      <flag value="-rdynamic"/>
+      <flag value="-m32" unless="noM32"/>
+      <flag value="-m64" if="HXCPP_M64" unless="noM64" />
+      <lib name="-ldl"/>
+      
+      <!-- 3DS Linker Flags -->
+      <section if="nx">
+         <lib name="-L/opt/devkitpro/libctru/lib"/>
+         <lib name="-L/opt/devkitpro/portlibs/3ds/lib"/>
+         <lib name="-lcitro3d"/>
+         <lib name="-lcitro2d"/>
+         <lib name="-lctru"/>
+         <lib name="-lm"/>
+      </section>
+
+      <!-- Wii U Linker Flags -->
+      <section if="wiiu">
+         <lib name="-L/opt/devkitpro/wut/lib"/>
+         <lib name="-lwut"/>
+         <lib name="-lcoreinit"/>
+         <lib name="-lfs"/>
+         <lib name="-lgx2"/>
+         <lib name="-lm"/>
+      </section>
+      
+      <ext value=""/>
+      <outflag value="-o "/>
+   </linker>
+
+</xml>
