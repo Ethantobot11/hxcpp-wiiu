@@ -48,6 +48,7 @@ typedef int SocketLen;
 #include <In.h>
 #include <sys/select.h>
 #define __BSD_VISIBLE 1
+#define AF_INET6 AF_INET
 #endif
 
 #include <netdb.h>
