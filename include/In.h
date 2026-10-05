@@ -489,10 +489,12 @@ typedef	__socklen_t	socklen_t;
 /*
  * Argument structure for IP_ADD_MEMBERSHIP and IP_DROP_MEMBERSHIP.
  */
+#ifndef __WIIU__
 struct ip_mreq {
-	struct	in_addr imr_multiaddr;	/* IP multicast address of group */
-	struct	in_addr imr_interface;	/* local IP address of interface */
+   struct in_addr imr_multiaddr;
+   struct in_addr imr_interface;
 };
+#endif
 
 /*
  * Modified argument structure for IP_MULTICAST_IF, obtained from Linux.
