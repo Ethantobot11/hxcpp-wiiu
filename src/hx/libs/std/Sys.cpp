@@ -142,7 +142,7 @@ void _hx_std_sys_sleep( double f )
 #elif defined(EPPC)
 //TODO: Implement sys_sleep for EPPC
 #elif defined(HAXEWIIU)
-   svcSleepThread((u64)(1e9 * f));
+   OSSleepTicks(SecondsToOSTicks(f));
 #else
    {
       struct timespec t;
@@ -665,7 +665,7 @@ double _hx_std_sys_cpu_time()
 #if defined(HX_WINRT) && !defined(_XBOX_ONE)
     return ((double)GetTickCount64()/1000.0);
 #elif defined(HAXEWIIU)
-   return ((double)svcGetSystemTick());
+   return OSTicksToSeconds(OSGetTime());
 #elif defined(NEKO_WINDOWS)
    FILETIME unused;
    FILETIME stime;
