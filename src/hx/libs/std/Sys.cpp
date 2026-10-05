@@ -142,7 +142,7 @@ void _hx_std_sys_sleep( double f )
 #elif defined(EPPC)
 //TODO: Implement sys_sleep for EPPC
 #elif defined(HAXEWIIU)
-   OSSleepTicks(SecondsToOSTicks(f));
+   OSSleepTicks(OSSecondsToTicks(f));
 #else
    {
       struct timespec t;
