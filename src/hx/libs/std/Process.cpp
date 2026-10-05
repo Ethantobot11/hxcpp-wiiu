@@ -594,21 +594,17 @@ int _hx_std_process_exit( Dynamic handle )
 **/
 int _hx_std_process_pid( Dynamic handle )
 {
-#if defined(__WIIU__)
+#if defined(__WIIU__) || defined(HX_WINRT)
    return -1;
 #else
-   u32 out;
-   svcGetProcessId(&out, (Handle)CUR_PROCESS_HANDLE);
-   return out;
-#endif
-
    vprocess *p = getProcess(handle);
+   if( p == NULL ) return -1;
 
-#ifdef NEKO_WINDOWS
+#  ifdef NEKO_WINDOWS
    return p->pinf.dwProcessId;
-#else
+#  else
    return p->pid;
-#endif
+#  endif
 #endif
 }
 
