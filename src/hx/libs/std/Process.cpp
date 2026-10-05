@@ -594,11 +594,13 @@ int _hx_std_process_exit( Dynamic handle )
 **/
 int _hx_std_process_pid( Dynamic handle )
 {
-#if defined(HAXEWIIU)
+#if defined(__WIIU__)
+   return -1;
+#else
    u32 out;
    svcGetProcessId(&out, (Handle)CUR_PROCESS_HANDLE);
-   return (int)out;
-#else
+   return out;
+#endif
 
    vprocess *p = getProcess(handle);
 
