@@ -117,6 +117,8 @@
 
       <section if="wiiu">
          <lib name="-L[DKP_PATH]/wut/lib"/>
+         <lib name="-L[DKP_PATH]/portlibs/wiiu/lib"/>
+         <lib name="-I[DKP_PATH]/portlibs/wiiu/include"/>
          <lib name="-lwut"/>
          <lib name="-lcoreinit"/>
          <lib name="-lfs"/>
